@@ -160,29 +160,9 @@ a {
 </head>
 <body>
     
-    <h1>Anime Search Engine</h1>
-    <div id="social-icons">
-        <a href="https://www.kaggle.com/itsnobita" target="_blank">
-            <img src="https://www.vectorlogo.zone/logos/kaggle/kaggle-icon.svg" alt="Kaggle" width="30" height="30">
-        </a>
-        <a href="https://www.linkedin.com/in/muhammad-ahmad-698137263/" target="_blank">
-            <img src="https://img.icons8.com/?size=48&id=13930&format=png" alt="LinkedIn" width="30" height="30">
-        </a>
-    </div>
-    <p>Hello Everyone. Here is a simple Search Engine for Anime Where you just have to describe what type of anime you want to watch <br>Please keep in mind the following points while writing your prompt
-    <ul>
-        <li id="simple">Please prefer to list the main theme of the anime in simple words</li>
-        <li id="simple">If you do not want something like Nudity, Violence in the anime then simply do not mention it in prompt rather than writing it in negation</li>
-        <li id="simple">Please Wait for 2 min after clicking the Submit button As the API is deployed on Free Tier</li>
-        <li id="simple">Note :The data in only limited to 2500 animes only so it does not contain all animes</li>
-    </ul>
-    Here are some Example Prompts 
-    <ol>
-        <li id="simpleexp">I want an anime with intense action, dark themes, and complex characters. It should have mature content and explore the moral ambiguity of its characters and their actions. The anime should contain sex and nudity</li>
-        <li id="simpleexp">I am craving a laid-back anime where ordinary people have extraordinary powers. Show me their daily lives juggling work, relationships, and the occasional alien invasion or demon possession, all with a sprinkle of witty banter and awkward situations.</li>
-        <li id="simpleexp">I am looking for the anime in which male character fall in love with the female character but hide his feelings the anime should have comedy alongside romance</li>
-        <li id="simpleexp">I am looking for a story about pirates and adventure with a comedic twist</li>
-    </ol>
+    <h1>Sentiment Analysis</h1>
+    
+    <p>Enter your sentence:
     </p>
     <input type="text" id="inputText" placeholder="Enter Your Prompt">
     <div id="loadingMessage">Loading...</div>
@@ -194,7 +174,7 @@ a {
     <button id="loadMoreButton" style="display:none;">Load More</button> 
 
     <script>
-         var liElements = document.querySelectorAll('li#simpleexp');
+         var liElements = document.querySelectorAll('#simpleexp');
 var inputText = document.getElementById('inputText');
 liElements.forEach(function(li) {
     li.addEventListener('click', function() {
@@ -215,9 +195,7 @@ liElements.forEach(function(li) {
                     data: JSON.stringify({text: inputText}),
                     contentType: "application/json",
                     success: function(response){
-                        console.log(response);
                         displayAnimeData(response);
-                        
                         $('#loadMoreButton').show().prop('disabled', false); // Show and enable Load More button
                         currentPage = 2;
                         $('#submitButton').prop('disabled', false).removeClass('focus');
@@ -244,7 +222,6 @@ liElements.forEach(function(li) {
                         if (response.trim() === "") {
                             $('#loadMoreButton').text('No more data').prop('active', true);
                         } else {
-                            console.log(response);
                             displayAnimeData(response);
                             currentPage++;
                             $('#loadMoreButton').prop('active', false); // Enable Load More button after response
