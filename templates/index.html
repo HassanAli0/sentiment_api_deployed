@@ -6,7 +6,64 @@
     <title>Sentiment Analysis</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        /* Your styles go here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #555;
+        }
+
+        input {
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #aaa;
+        }
+
+        #loadingMessage {
+            display: none;
+            color: #777;
+        }
+
+        #container {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -23,87 +80,84 @@
     <button id="loadMoreButton" style="display:none;">Load More</button> 
 
     <script>
-        $(document).ready(function(){
-            var inputText = $('#inputText');
-            var $animeList = $('#animeList');
-            var $loadMoreButton = $('#loadMoreButton');
-            var currentPage = 1;
+        $(document).ready(function () {
+    var inputText = $('#inputText');
+    var $animeList = $('#animeList');
+    var $loadMoreButton = $('#loadMoreButton');
+    var currentPage = 1;
 
-            $('#submitButton').click(function(){
-                var text = inputText.val();
-                disableButtonAndShowLoading();
+    $('#submitButton').click(function () {
+        var text = inputText.val();
+        disableButtonAndShowLoading();
 
-                $.ajax({
-                    type: "POST",
-                    url: "/comment",
-                    data: JSON.stringify({text: text}),
-                    contentType: "application/json",
-                    success: function(response){
-                        console.log("Response data:", response);
-                        enableButtonAndHideLoading();
-                        displayAnimeData(response);
-                    },
-                    error: function(xhr, status, error){
-                        console.error("Error:", error);
-                        enableButtonAndHideLoading();
-                    }
-                });
-            });
-
-            $loadMoreButton.click(function(){
-                $(this).prop('disabled', true);
-                $('#loadingMessage').show();
-
-                $.ajax({
-                    type: "POST",
-                    url: "/comment",
-                    data: JSON.stringify({text: inputText.val(), page: currentPage}),
-                    contentType: "application/json",
-                    success: function(response){
-                        $('#loadingMessage').hide();
-                        if (typeof response === 'object') {
-                            displayAnimeData(JSON.stringify(response)); // Ensure response is a JSON-formatted string
-                        } else {
-                            displayAnimeData(response);
-                        }
-                        currentPage++;
-                        $loadMoreButton.prop('disabled', false);
-                    },
-                    error: function(xhr, status, error){
-                        console.error("Error:", error);
-                        $('#loadingMessage').hide();
-                    }
-                });
-            });
-
-            function disableButtonAndShowLoading() {
-                $('#submitButton').prop('disabled', true);
-                $animeList.empty();
-                $('#loadingMessage').show();
-            }
-
-            function enableButtonAndHideLoading() {
-                $('#submitButton').prop('disabled', false);
-                $('#loadingMessage').hide();
-            }
-
-            function displayAnimeData(data) {
-                try {
-                    var animeList = JSON.parse(data);
-
-                    animeList.forEach(function(anime) {
-                        var $animeListItem = $('<li>');
-                        var $animeLink = $('<a>').attr('href', anime.Link).attr('target', '_blank').text(anime.Name);
-                        $animeListItem.append($animeLink);
-                        $animeList.append($animeListItem);
-                    });
-
-                    $loadMoreButton.show();
-                } catch (error) {
-                    console.error("Error parsing JSON:", error);
-                }
+        $.ajax({
+            type: "POST",
+            url: "/comment",
+            data: JSON.stringify({ text: text }),
+            contentType: "application/json",
+            success: function (response) {
+                console.log("Response data:", response);
+                enableButtonAndHideLoading();
+                displayAnimeData(response);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+                enableButtonAndHideLoading();
             }
         });
+    });
+
+    $loadMoreButton.click(function () {
+        $(this).prop('disabled', true);
+        $('#loadingMessage').show();
+
+        $.ajax({
+            type: "POST",
+            url: "/comment",
+            data: JSON.stringify({ text: inputText.val(), page: currentPage }),
+            contentType: "application/json",
+            success: function (response) {
+                $('#loadingMessage').hide();
+                displayAnimeData(response);
+                currentPage++;
+                $loadMoreButton.prop('disabled', false);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+                $('#loadingMessage').hide();
+            }
+        });
+    });
+
+    function disableButtonAndShowLoading() {
+        $('#submitButton').prop('disabled', true);
+        $animeList.empty();
+        $('#loadingMessage').show();
+    }
+
+    function enableButtonAndHideLoading() {
+        $('#submitButton').prop('disabled', false);
+        $('#loadingMessage').hide();
+    }
+
+    function displayAnimeData(data) {
+        try {
+            var animeList = Array.isArray(data) ? data : JSON.parse(data);
+
+            animeList.forEach(function (anime) {
+                var $animeListItem = $('<li>');
+                var $animeLink = $('<a>').attr('href', anime.Link).attr('target', '_blank').text(anime.Name);
+                $animeListItem.append($animeLink);
+                $animeList.append($animeListItem);
+            });
+
+            $loadMoreButton.show();
+        } catch (error) {
+            console.error("Error parsing JSON:", error);
+        }
+    }
+});
+
     </script>
 </body>
 </html>
