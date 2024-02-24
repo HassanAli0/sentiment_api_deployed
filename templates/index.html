@@ -39,14 +39,9 @@
                     data: JSON.stringify({text: text}),
                     contentType: "application/json",
                     success: function(response){
-                        try {
-                            var animeList = JSON.parse(response);
-                            displayAnimeData(animeList);
-                        } catch (error) {
-                            console.error("Error parsing JSON:", error);
-                        } finally {
-                            enableButtonAndHideLoading();
-                        }
+                        console.log("Response:", response);
+                        enableButtonAndHideLoading();
+                        displayAnimeData(response);
                     },
                     error: function(xhr, status, error){
                         console.error("Error:", error);
@@ -65,14 +60,12 @@
                     data: JSON.stringify({text: inputText.val(), page: currentPage}),
                     contentType: "application/json",
                     success: function(response){
-                        try {
-                            var animeList = JSON.parse(response);
-                            displayAnimeData(animeList);
+                        $('#loadingMessage').hide();
+                        if (response.trim() === "") {
+                            $loadMoreButton.text('No more data').prop('disabled', true);
+                        } else {
+                            displayAnimeData(response);
                             currentPage++;
-                        } catch (error) {
-                            console.error("Error parsing JSON:", error);
-                        } finally {
-                            $('#loadingMessage').hide();
                             $loadMoreButton.prop('disabled', false);
                         }
                     },
@@ -94,20 +87,20 @@
                 $('#loadingMessage').hide();
             }
 
-            function displayAnimeData(animeList) {
-                $animeList.empty();
+            function displayAnimeData(data) {
+                try {
+                    var animeList = JSON.parse(data);
 
-                animeList.forEach(function(anime) {
-                    var $animeListItem = $('<li>');
-                    var $animeLink = $('<a>').attr('href', anime.Link).attr('target', '_blank').text(anime.Name);
-                    $animeListItem.append($animeLink);
-                    $animeList.append($animeListItem);
-                });
+                    animeList.forEach(function(anime) {
+                        var $animeListItem = $('<li>');
+                        var $animeLink = $('<a>').attr('href', anime.Link).attr('target', '_blank').text(anime.Name);
+                        $animeListItem.append($animeLink);
+                        $animeList.append($animeListItem);
+                    });
 
-                if (animeList.length === 0) {
-                    $loadMoreButton.text('No more data').prop('disabled', true);
-                } else {
-                    $loadMoreButton.prop('disabled', false);
+                    $loadMoreButton.show();
+                } catch (error) {
+                    console.error("Error parsing JSON:", error);
                 }
             }
         });
