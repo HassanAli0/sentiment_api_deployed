@@ -3,79 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comment Form</title>
+    <title>Sentiment Analysis</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-        }
-
-        button {
-            background-color: #4caf50;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        #result {
-            margin-top: 15px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
+        /* Your styles go here */
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Comment Form</h2>
-        <input type="text" id="commentInput" placeholder="Enter your comment...">
-        <button onclick="submitComment()">Submit</button>
-        <div id="result"></div>
+    <h1>Sentiment Analysis</h1>
+    
+    <p>Enter your sentence:</p>
+    <input type="text" id="inputText" placeholder="Enter Your Prompt">
+    <div id="loadingMessage">Loading...</div>
+    <button id="submitButton">Submit</button>
+    <br><br>
+    <div id="container">
+        <ul id="animeList"></ul>
     </div>
+    <button id="loadMoreButton" style="display:none;">Load More</button> 
 
     <script>
-        function submitComment() {
-            const comment = document.getElementById('commentInput').value;
+        $(document).ready(function(){
+            var inputText = $('#inputText');
+            var $animeList = $('#animeList');
+            var $loadMoreButton = $('#loadMoreButton');
+            var currentPage = 1;
 
-            // Assuming you are using fetch API
-            fetch('/comment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ comment: comment })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const resultElement = document.getElementById('result');
-                resultElement.innerHTML = `<p><strong>Response:</strong> ${JSON.stringify(data)}</p>`;
-            })
-            .catch(error => {
-                console.error('Error:', error);
+            $('#submitButton').click(function(){
+                var text = inputText.val();
+                disableButtonAndShowLoading();
+
+                $.ajax({
+                    type: "POST",
+                    url: "/comment",
+                    data: JSON.stringify({text: text}),
+                    contentType: "application/json",
+                    success: function(response){
+                        console.log("Response data:", response);
+                        enableButtonAndHideLoading();
+                        displayAnimeData(response);
+                    },
+                    error: function(xhr, status, error){
+                        console.error("Error:", error);
+                        enableButtonAndHideLoading();
+                    }
+                });
             });
-        }
+
+            $loadMoreButton.click(function(){
+                $(this).prop('disabled', true);
+                $('#loadingMessage').show();
+
+                $.ajax({
+                    type: "POST",
+                    url: "/comment",
+                    data: JSON.stringify({text: inputText.val(), page: currentPage}),
+                    contentType: "application/json",
+                    success: function(response){
+                        $('#loadingMessage').hide();
+                        if (typeof response === 'object') {
+                            displayAnimeData(JSON.stringify(response)); // Ensure response is a JSON-formatted string
+                        } else {
+                            displayAnimeData(response);
+                        }
+                        currentPage++;
+                        $loadMoreButton.prop('disabled', false);
+                    },
+                    error: function(xhr, status, error){
+                        console.error("Error:", error);
+                        $('#loadingMessage').hide();
+                    }
+                });
+            });
+
+            function disableButtonAndShowLoading() {
+                $('#submitButton').prop('disabled', true);
+                $animeList.empty();
+                $('#loadingMessage').show();
+            }
+
+            function enableButtonAndHideLoading() {
+                $('#submitButton').prop('disabled', false);
+                $('#loadingMessage').hide();
+            }
+
+            function displayAnimeData(data) {
+                try {
+                    var animeList = JSON.parse(data);
+
+                    animeList.forEach(function(anime) {
+                        var $animeListItem = $('<li>');
+                        var $animeLink = $('<a>').attr('href', anime.Link).attr('target', '_blank').text(anime.Name);
+                        $animeListItem.append($animeLink);
+                        $animeList.append($animeListItem);
+                    });
+
+                    $loadMoreButton.show();
+                } catch (error) {
+                    console.error("Error parsing JSON:", error);
+                }
+            }
+        });
     </script>
 </body>
 </html>
