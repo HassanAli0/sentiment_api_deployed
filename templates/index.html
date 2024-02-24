@@ -3,167 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anime Search Engine</title>
+    <title>Sentiment Analysis</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-}
-
-#container {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-p {
-    font-size: 16px;
-    color: #333;
-    margin-bottom: 20px;
-    margin-left: 30px;
-    text-align: justify; /* Justify the text within the paragraph */
-}
-#simple{
-    margin-left: 20px; 
-}
-
-#simpleexp{
-    margin-left: 20px; 
-    cursor: pointer; 
-}
-ul, ol {
-    margin-left: 20px; /* Add some left margin to the lists for better readability */
-}
-
-#submitButton:active{
-    background-color: #ffffff !important; /* Add !important to override other styles if necessary */
-    color: #007bff !important; /* Add !important to override other styles if necessary */
-}
-h1 {
-    margin-left: 490px;
-    font-size: 34px;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.search-box {
-    margin-bottom: 20px;
-}
-#inputText{
-    margin-left: 365px;
-}
-input[type="text"] {
-    padding: 8px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 38%;
-}
-
-button {
-    padding: 8px 20px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-#animeList {
-    list-style-type: none;
-    padding: 0;
-}
-
-li {
-    padding: 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-
-a {
-    color: #333;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-#loadMoreButton {
-    display: block;
-    margin-top: 20px;
-    margin-left: 46%;
-}
-#loadingMessage {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.5);
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 5px;
-            display: none;
-        }
-        /* Styling for the container */
-        #container {
-            max-width: 600px; /* Adjust the maximum width as needed */
-            margin: 0 auto; /* Center the container */
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #f9f9f9;
-        }
-
-        /* Styling for the list */
-        #animeList {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        /* Styling for each list item */
-        #animeList li {
-            margin-bottom: 10px;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Styling for the links */
-        #animeList li a {
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
-        }
-         #social-icons {
-        position: absolute;
-        top: 10px;
-        right: 20px;
-    }
-
-    #social-icons a {
-        margin-left: 10px;
-    }
+        /* Your styles go here */
     </style>
 </head>
 <body>
-    
     <h1>Sentiment Analysis</h1>
     
-    <p>Enter your sentence:
-    </p>
+    <p>Enter your sentence:</p>
     <input type="text" id="inputText" placeholder="Enter Your Prompt">
     <div id="loadingMessage">Loading...</div>
     <button id="submitButton">Submit</button>
@@ -174,58 +23,49 @@ a {
     <button id="loadMoreButton" style="display:none;">Load More</button> 
 
     <script>
-         var liElements = document.querySelectorAll('#simpleexp');
-var inputText = document.getElementById('inputText');
-liElements.forEach(function(li) {
-    li.addEventListener('click', function() {
-        inputText.value = this.textContent;
-    });
-});
         $(document).ready(function(){
+            var inputText = $('#inputText');
+            var $animeList = $('#animeList');
+            var $loadMoreButton = $('#loadMoreButton');
             var currentPage = 1;
-    
+
             $('#submitButton').click(function(){
-                var inputText = $('#inputText').val();
-                $('#submitButton').prop('disabled', true);
-                $('#animeList').empty();
-                $('#loadingMessage').show();
+                var text = inputText.val();
+                disableButtonAndShowLoading();
+
                 $.ajax({
                     type: "POST",
                     url: "/comment",
-                    data: JSON.stringify({text: inputText}),
+                    data: JSON.stringify({text: text}),
                     contentType: "application/json",
                     success: function(response){
-                            console.log("Response:", response);
-                            displayAnimeData(response);
-                            $('#loadMoreButton').show().prop('disabled', false);
-                            currentPage = 2;
-                            $('#submitButton').prop('disabled', false).removeClass('focus');
-                            $('#loadingMessage').hide();
+                        enableButtonAndHideLoading();
+                        displayAnimeData(response);
                     },
                     error: function(xhr, status, error){
                         console.error("Error:", error);
-                        $('#submitButton').prop('disabled', false).removeClass('focus');
-                        $('#loadingMessage').hide();
+                        enableButtonAndHideLoading();
                     }
                 });
             });
-    
-            $('#loadMoreButton').click(function(){
+
+            $loadMoreButton.click(function(){
                 $(this).prop('disabled', true);
                 $('#loadingMessage').show();
+
                 $.ajax({
                     type: "POST",
                     url: "/comment",
-                    data: JSON.stringify({text: $('#inputText').val(), page: currentPage}),
+                    data: JSON.stringify({text: inputText.val(), page: currentPage}),
                     contentType: "application/json",
                     success: function(response){
                         $('#loadingMessage').hide();
                         if (response.trim() === "") {
-                            $('#loadMoreButton').text('No more data').prop('active', true);
+                            $loadMoreButton.text('No more data').prop('disabled', true);
                         } else {
                             displayAnimeData(response);
                             currentPage++;
-                            $('#loadMoreButton').prop('active', false); // Enable Load More button after response
+                            $loadMoreButton.prop('disabled', false);
                         }
                     },
                     error: function(xhr, status, error){
@@ -234,10 +74,20 @@ liElements.forEach(function(li) {
                     }
                 });
             });
-    
+
+            function disableButtonAndShowLoading() {
+                $('#submitButton').prop('disabled', true);
+                $animeList.empty();
+                $('#loadingMessage').show();
+            }
+
+            function enableButtonAndHideLoading() {
+                $('#submitButton').prop('disabled', false);
+                $('#loadingMessage').hide();
+            }
+
             function displayAnimeData(data) {
                 var animeList = JSON.parse(data);
-                var $animeList = $('#animeList');
 
                 animeList.forEach(function(anime) {
                     var $animeListItem = $('<li>');
@@ -245,11 +95,10 @@ liElements.forEach(function(li) {
                     $animeListItem.append($animeLink);
                     $animeList.append($animeListItem);
                 });
+                
+                $loadMoreButton.show();
             }
         });
     </script>
-    
-    
 </body>
-
 </html>
