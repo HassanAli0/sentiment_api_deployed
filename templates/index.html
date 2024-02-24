@@ -195,11 +195,12 @@ liElements.forEach(function(li) {
                     data: JSON.stringify({text: inputText}),
                     contentType: "application/json",
                     success: function(response){
-                        displayAnimeData(response);
-                        $('#loadMoreButton').show().prop('disabled', false); // Show and enable Load More button
-                        currentPage = 2;
-                        $('#submitButton').prop('disabled', false).removeClass('focus');
-                        $('#loadingMessage').hide();
+                            console.log("Response:", response);
+                            displayAnimeData(response);
+                            $('#loadMoreButton').show().prop('disabled', false);
+                            currentPage = 2;
+                            $('#submitButton').prop('disabled', false).removeClass('focus');
+                            $('#loadingMessage').hide();
                     },
                     error: function(xhr, status, error){
                         console.error("Error:", error);
