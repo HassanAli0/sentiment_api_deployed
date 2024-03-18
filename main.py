@@ -42,9 +42,9 @@ def comment():
     X_sentence = cv.transform([text])
     sentiment = ''
     if(model.predict(X_sentence)==0):
-        sentiment = "Negative Sentence"
+        sentiment = "1"
     elif(model.predict(X_sentence)==4):
-        sentiment = "Positive Sentence"
+        sentiment = "5"
 
     return jsonify({"sentiment": sentiment})
 
